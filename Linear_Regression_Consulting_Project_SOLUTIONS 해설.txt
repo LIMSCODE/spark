@@ -1,0 +1,41 @@
+1. csv에서받은 df에서 인덱서를통해 cruise_cat컬럼 ##### 을 생성한다
+indexer = StringIndexer(inputCol="Cruise_line", outputCol="cruise_cat")
+indexed = indexer.fit(df).transform(df)
+
+2. assembler는 인덱서를통해 기존컬럼을 벡터화시켜서 features컬럼 ##### 생성한다
+assembler를 
+assembler = VectorAssembler(
+  inputCols=['Age',
+             'Tonnage',  ....
+             'passenger_density',
+             'cruise_cat'],
+    outputCol="features")
+output = assembler.transform(indexed)
+
+3. 최종데이터 (피처와 크류 선택)
+final_data = output.select("features", "crew")
+train_data,test_data = final_data.randomSplit([0.7,0.3])
+
+4. 훈련시키기
+lr = LinearRegression(labelCol='crew')
+lrModel = lr.fit(train_data)
+print("Coefficients: {} Intercept: {}".format(lrModel.coefficients,lrModel.intercept))
+
+5. 평가하기
+test_results = lrModel.evaluate(test_data)
+print("R2: {}".format(test_results.r2))
+
+6. 상관관계 예측
+df.select(corr('crew','passengers')).show()
+df.select(corr('crew','cabins')).show()
+
+
+
+
+
+
+
+
+
+
+
